@@ -1,6 +1,6 @@
 import socket
 
-serverName = "127.0.0.1"
+serverName = "177.132.234.62"
 serverPort = 1150
 
 msg: str = input("Enter some text: ")

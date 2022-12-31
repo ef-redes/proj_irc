@@ -4,7 +4,7 @@ USER guest tolmoon tolsun :Ronnie Reagan
 NICK <nickname>
 NICK Wiz
 
-QUIT [<Quit message>]
+QUIT [<quitmessage>]
 QUIT :Gone to have lunch
 
 JOIN <channel> [<key>]
@@ -16,7 +16,7 @@ PART #twilight_zone
 LIST
 LIST
 
-PRIVMSG <target>{,<target>} <text to be sent>
+PRIVMSG <target> <text>
 PRIVMSG Angel :yes I'm receiving it !
 
 WHO <name>

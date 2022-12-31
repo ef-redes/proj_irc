@@ -1,0 +1,23 @@
+USER <username> <hostname> <servername> <realname>
+USER guest tolmoon tolsun :Ronnie Reagan
+
+NICK <nickname>
+NICK Wiz
+
+QUIT [<Quit message>]
+QUIT :Gone to have lunch
+
+JOIN <channel> [<key>]
+JOIN &foo fubar
+
+PART <channel>
+PART #twilight_zone
+
+LIST
+LIST
+
+PRIVMSG <target>{,<target>} <text to be sent>
+PRIVMSG Angel :yes I'm receiving it !
+
+WHO <name>
+WHO &foo

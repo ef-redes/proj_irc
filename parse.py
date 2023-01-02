@@ -90,7 +90,7 @@ def parseWho(msg: str) -> Command:
 	return Command(cmdType, params)
 
 def parseMessage(msg: str) -> Command:
-	cmdName = msg.split(" ")[0].lower()
+	cmdName = msg.split(" ")[0].upper()
 
 	if   cmdName == "USER":    return parseUser(msg)
 	elif cmdName == "NICK":    return parseNick(msg)

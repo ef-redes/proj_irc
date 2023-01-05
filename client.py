@@ -16,10 +16,14 @@ def listenMessages():
 def executePrivmsg(cmd: Command):
 	print(cmd.params["text"])
 
+def executeJoin(cmd: Command):
+	print(f"Joined {cmd.params['channel']} channel.")
+
 def handleMessage(msg: str):
 	cmd = parseMessage(msg)
 
 	if cmd.cmdType == CmdType.PRIVMSG: executePrivmsg(cmd)
+	elif cmd.cmdType == CmdType.JOIN: executeJoin(cmd)
 
 
 messageThread = threading.Thread(target=listenMessages, daemon=True)

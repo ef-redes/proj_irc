@@ -12,7 +12,12 @@ class User:
 		self.realname = ""
 		self.addr = addr
 		self.userThread = None
+		self.channel : Channel = None
 
+class Channel:
+	def __init__(self, name : str, users: "set[User]") -> None:
+		self.name = name
+		self.users = users
 
 debug = True
 
@@ -22,6 +27,7 @@ serverSocket.bind(('', constants.serverPort))
 serverSocket.listen()
 
 users = {}
+channels = {}
 
 msgQueue = queue.Queue()
 
@@ -61,12 +67,21 @@ def executeUser(addr, cmd: Command):
 def executeNick(addr, cmd: Command):
 	users[addr].username = cmd.params["nickname"]
 
+def sendChannelMessage(origin : str, msg : str, name : str):
+	for channelName in channels:
+		if channelName == name:
+			channel = channels[channelName]
+			for user in channel.users:
+				msg = f"PRIVMSG {name} :{origin}: {msg}"
+				user.userSocket.send(msg.encode())
+			return
+
+
 def executePrivmsg(addr, cmd: Command):
 	target = cmd.params["target"]
 	text = cmd.params["text"]
 
-	if target[0] == "#":
-		return
+	if target[0] == "#": sendChannelMessage(users[addr].username, text, target)
 
 	for addrTarget in users:
 		if users[addrTarget].username == target:
@@ -76,9 +91,30 @@ def executePrivmsg(addr, cmd: Command):
 			return
 
 	# TODO : Handle case where target was not found.
-	
-	
 
+def joinChannel(user: User, channel : Channel):
+	userChannel = user.channel
+	if not userChannel == None:
+		channels[userChannel.name].users.remove(user)
+
+	user.channel = channel
+	channel.users.add(user)
+
+def executeJoin(addr, cmd : Command):
+	channelExists = False
+	for channelName in channels:
+		channel = channels[channelName]
+		if channel.name == cmd.params["channel"]:
+			channel.users.append(users[addr])
+			
+			joinChannel(users[addr], channel)
+			channelExists = True
+			break
+	
+	if not channelExists:
+		channel = Channel(cmd.params[channel], {users[addr]})
+		joinChannel(users[addr], channel)
+		
 
 
 def handleMessage(msgPair) -> None:
@@ -88,6 +124,7 @@ def handleMessage(msgPair) -> None:
 	if cmd.cmdType == CmdType.USER: executeUser(addr, cmd)
 	elif cmd.cmdType == CmdType.NICK: executeNick(addr, cmd)
 	elif cmd.cmdType == CmdType.PRIVMSG: executePrivmsg(addr, cmd)
+	elif cmd.cmdType == CmdType.JOIN: executeJoin(addr, cmd)
 
 while True:
 	if msgQueue.empty(): continue

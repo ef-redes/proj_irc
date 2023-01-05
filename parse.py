@@ -11,6 +11,11 @@ class CmdType(Enum):
 	WHO = 8
 	NUMERICAL = 9
 
+class ErrorNum(Enum):
+	ERR_UNKNOWNCOMMAND = 421
+	ERR_NOSUCHNICK = 401
+	ERR_NOSUCHCHANNEL = 403
+
 def cmdTypeToString(cmdType: CmdType) -> str:
 		result = {CmdType.USER:"USER", CmdType.NICK:"NICK", CmdType.QUIT:"QUIT", \
 		CmdType.JOIN:"JOIN", CmdType.PART:"PART", CmdType.LIST:"LIST", CmdType.PRIVMSG: "PRIVMSG", \
@@ -100,4 +105,4 @@ def parseMessage(msg: str) -> Command:
 	elif cmdName == "LIST":    return parseList(msg)
 	elif cmdName == "PRIVMSG": return parsePrivmsg(msg)
 	elif cmdName == "WHO":     return parseWho(msg)
-	else:                      return Command(CmdType.NUMERICAL, {"num":421})
+	else:                      return Command(CmdType.NUMERICAL, {"num":ErrorNum.ERR_UNKNOWNCOMMAND})

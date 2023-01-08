@@ -1,3 +1,3 @@
-serverAddress = "187.113.17.77"
-serverPort = 1150
+serverAddress = "177.133.29.154"
+serverPort = 1152
 bufsize = 2048

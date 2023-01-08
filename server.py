@@ -68,11 +68,12 @@ def executeNick(addr, cmd: Command):
 	users[addr].username = cmd.params["nickname"]
 
 def sendChannelMessage(origin : str, msg : str, name : str):
+	msg = f"PRIVMSG {name} :{origin}: {msg}"
 	for channelName in channels:
 		if channelName == name:
 			channel = channels[channelName]
 			for user in channel.users:
-				msg = f"PRIVMSG {name} :{origin}: {msg}"
+				if user.username == origin: continue
 				user.userSocket.send(msg.encode())
 			return
 
@@ -105,14 +106,17 @@ def executeJoin(addr, cmd : Command):
 	for channelName in channels:
 		channel = channels[channelName]
 		if channel.name == cmd.params["channel"]:
-			channel.users.append(users[addr])
+			channel.users.add(users[addr])
 			
 			joinChannel(users[addr], channel)
 			channelExists = True
+			if debug: print(f"{users[addr].username} joined {channel.name}")
 			break
 	
 	if not channelExists:
-		channel = Channel(cmd.params[channel], {users[addr]})
+		if debug: print(f"Channel {cmd.params['channel']} created")
+		channel = Channel(cmd.params["channel"], {users[addr]})
+		channels[channel.name] = channel
 		joinChannel(users[addr], channel)
 		
 

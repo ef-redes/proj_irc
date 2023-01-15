@@ -77,7 +77,6 @@ def sendChannelMessage(origin : str, msg : str, name : str, raw=False):
 				user.userSocket.send(msg.encode())
 			return
 
-
 def executePrivmsg(addr, cmd: Command):
 	target = cmd.params["target"]
 	text = cmd.params["text"]
@@ -119,6 +118,10 @@ def executeJoin(addr, cmd : Command):
 		channels[channel.name] = channel
 		joinChannel(users[addr], channel)
 
+	joinMSg = f"{users[addr].username} joined the channel."
+	joinMSg = f"PRIVMSG {users[addr].channel.name} :{joinMSg}"
+	sendChannelMessage(users[addr].username, joinMSg, users[addr].channel.name, True)
+
 def removeFromChannel(user: User) -> None:
 	if user.channel == None: return
 	user.channel.users.remove(user)
@@ -135,7 +138,13 @@ def executeQuit(addr, cmd : Command):
 	removeFromChannel(users[addr])
 
 def executePart(addr, cmd : Command):
-	pass
+	if users[addr].channel == None: return
+	if cmd.params['channel'] != users[addr].channel.name: return
+
+	partMsg = f"{users[addr].username} left the channel."
+	partMsg = f"PRIVMSG {users[addr].channel.name} :{partMsg}"
+	sendChannelMessage(users[addr].username, partMsg, users[addr].channel.name, True)
+	removeFromChannel(users[addr])
 
 def executeList(addr, cmd : Command):
 	pass

@@ -157,7 +157,19 @@ def executeList(addr, cmd : Command):
 	users[addr].userSocket.send(msg.encode())
 
 def executeWho(addr, cmd : Command):
-	pass
+	if not cmd.params["name"] in channels: 
+		msg = f"Channel {cmd.params['name']} does not exist."
+		msg = f"PRIVMSG {users[addr].username} :{msg}"
+		users[addr].userSocket.send(msg.encode())
+		return
+
+	msg = f"Users in {cmd.params['name']}:\n"
+	for user in channels[cmd.params["name"]].users:
+		msg += f"{user.username}\n"
+
+	msg = f"PRIVMSG {users[addr].username} :{msg}"
+	users[addr].userSocket.send(msg.encode())
+
 
 def handleMessage(msgPair) -> None:
 	addr, msg = msgPair

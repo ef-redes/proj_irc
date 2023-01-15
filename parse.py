@@ -17,10 +17,10 @@ class ErrorNum(Enum):
 	ERR_NOSUCHCHANNEL = 403
 
 def cmdTypeToString(cmdType: CmdType) -> str:
-		result = {CmdType.USER:"USER", CmdType.NICK:"NICK", CmdType.QUIT:"QUIT", \
-		CmdType.JOIN:"JOIN", CmdType.PART:"PART", CmdType.LIST:"LIST", CmdType.PRIVMSG: "PRIVMSG", \
-		CmdType.WHO: "WHO", CmdType.NUMERICAL:"NUMERICAL"}
-		return result[cmdType]
+	result = {CmdType.USER:"USER", CmdType.NICK:"NICK", CmdType.QUIT:"QUIT", \
+	CmdType.JOIN:"JOIN", CmdType.PART:"PART", CmdType.LIST:"LIST", CmdType.PRIVMSG: "PRIVMSG", \
+	CmdType.WHO: "WHO", CmdType.NUMERICAL:"NUMERICAL"}
+	return result[cmdType]
 
 class Command:
 	def __init__(self, cmdType: CmdType, params:"dict[str, str]"={}) -> None:
@@ -51,7 +51,7 @@ def parseQuit(msg: str) -> Command:
 	cmdType = CmdType.QUIT
 	msg = msg.split(" ")
 	if len(msg) < 2: params = {"quitmessage":""}
-	else: params = {"quitmessage": " ".join(msg[1:])[1:]}
+	else: params = {"quitmessage": " ".join(msg[1:])}
 	
 	return Command(cmdType, params)
 

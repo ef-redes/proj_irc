@@ -67,8 +67,8 @@ def executeUser(addr, cmd: Command):
 def executeNick(addr, cmd: Command):
 	users[addr].username = cmd.params["nickname"]
 
-def sendChannelMessage(origin : str, msg : str, name : str):
-	msg = f"PRIVMSG {name} :{origin}: {msg}"
+def sendChannelMessage(origin : str, msg : str, name : str, raw=False):
+	if not raw: msg = f"PRIVMSG {name} :{origin}: {msg}"
 	for channelName in channels:
 		if channelName == name:
 			channel = channels[channelName]
@@ -118,8 +118,30 @@ def executeJoin(addr, cmd : Command):
 		channel = Channel(cmd.params["channel"], {users[addr]})
 		channels[channel.name] = channel
 		joinChannel(users[addr], channel)
-		
 
+def removeFromChannel(user: User) -> None:
+	if user.channel == None: return
+	user.channel.users.remove(user)
+
+
+def executeQuit(addr, cmd : Command):
+	if cmd.params['quitmessage'] == "": 
+		quitMsg = f"{users[addr].username} quit."
+	else:
+		quitMsg = f"{users[addr].username} quit with message \"{cmd.params['quitmessage']}\"."
+
+	quitMsg = f"PRIVMSG {users[addr].channel.name} :{quitMsg}"
+	sendChannelMessage(users[addr].username, quitMsg, users[addr].channel.name, True)
+	removeFromChannel(users[addr])
+
+def executePart(addr, cmd : Command):
+	pass
+
+def executeList(addr, cmd : Command):
+	pass
+
+def executeWho(addr, cmd : Command):
+	pass
 
 def handleMessage(msgPair) -> None:
 	addr, msg = msgPair
@@ -129,6 +151,10 @@ def handleMessage(msgPair) -> None:
 	elif cmd.cmdType == CmdType.NICK: executeNick(addr, cmd)
 	elif cmd.cmdType == CmdType.PRIVMSG: executePrivmsg(addr, cmd)
 	elif cmd.cmdType == CmdType.JOIN: executeJoin(addr, cmd)
+	elif cmd.cmdType == CmdType.QUIT: executeQuit(addr,cmd)
+	elif cmd.cmdType == CmdType.PART: executePart(addr,cmd)
+	elif cmd.cmdType == CmdType.LIST: executeList(addr,cmd)
+	elif cmd.cmdType == CmdType.WHO: executeWho(addr,cmd)
 
 while True:
 	if msgQueue.empty(): continue

@@ -4,6 +4,7 @@ import constants
 from parse import *
 
 currentChannel : str = ""
+finishSession : bool = False
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((constants.serverAddress, constants.serverPort))
@@ -24,6 +25,10 @@ def executeJoin(cmd: Command):
 	currentChannel = cmd.params['channel']
 	print(f"Joined {cmd.params['channel']} channel.")
 
+def executeQuit(cmd: Command):
+	global finishSession
+	finishSession = True
+
 def handleMessage(msg: str):
 	cmd = parseMessage(msg)
 
@@ -38,10 +43,11 @@ def processInput(msg : str) -> str:
 	cmd = parseMessage(msg[1:])
 
 	if cmd.cmdType == CmdType.JOIN: executeJoin(cmd)
+	elif cmd.cmdType == CmdType.QUIT: executeQuit(cmd)
 
 	return msg[1:]
 
 
-while True:
+while not finishSession:
 	msg = processInput(input())
 	clientSocket.send(msg.encode())

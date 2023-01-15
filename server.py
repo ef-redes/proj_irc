@@ -58,12 +58,10 @@ def handleUser(user: User):
 acceptThread = threading.Thread(target=acceptClient, daemon=True)
 acceptThread.start()
 
-# TODO : Check if username and realname are well-formed.
 def executeUser(addr, cmd: Command):
 	users[addr].username = cmd.params["username"]
 	users[addr].realname = cmd.params["realname"]
 
-# TODO : Check if nick is well-formed.
 def executeNick(addr, cmd: Command):
 	users[addr].username = cmd.params["nickname"]
 
@@ -90,17 +88,15 @@ def executePrivmsg(addr, cmd: Command):
 
 			return
 
-	# TODO : Handle case where target was not found.
-
 def joinChannel(user: User, channel : Channel):
-	userChannel = user.channel
-	if not userChannel == None:
-		channels[userChannel.name].users.remove(user)
+	removeFromChannel(user)
 
 	user.channel = channel
 	channel.users.add(user)
 
 def executeJoin(addr, cmd : Command):
+	if users[addr].channel != None and users[addr].channel.name == cmd.params['channel']: return
+
 	channelExists = False
 	for channelName in channels:
 		channel = channels[channelName]
@@ -113,6 +109,7 @@ def executeJoin(addr, cmd : Command):
 			break
 	
 	if not channelExists:
+		if cmd.params["channel"][0] != "#": return
 		if debug: print(f"Channel {cmd.params['channel']} created")
 		channel = Channel(cmd.params["channel"], {users[addr]})
 		channels[channel.name] = channel
@@ -125,6 +122,9 @@ def executeJoin(addr, cmd : Command):
 def removeFromChannel(user: User) -> None:
 	if user.channel == None: return
 	user.channel.users.remove(user)
+	if len(user.channel.users) == 0:
+		channels.pop(user.channel.name)
+		
 
 
 def executeQuit(addr, cmd : Command):
@@ -147,7 +147,14 @@ def executePart(addr, cmd : Command):
 	removeFromChannel(users[addr])
 
 def executeList(addr, cmd : Command):
-	pass
+	msg = ""
+	for channelName in channels:
+		nUsers = len(channels[channelName].users)
+		userStr = "user" if nUsers == 1 else "users" 
+		msg += f"{channelName}: {nUsers} {userStr}.\n"
+
+	msg = f"PRIVMSG {users[addr].username} :{msg}"
+	users[addr].userSocket.send(msg.encode())
 
 def executeWho(addr, cmd : Command):
 	pass

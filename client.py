@@ -22,8 +22,14 @@ def executePrivmsg(cmd: Command):
 def executeJoin(cmd: Command):
 	global currentChannel
 
-	currentChannel = cmd.params['channel']
-	print(f"Joined {cmd.params['channel']} channel.")
+	if cmd.params['channel'][0] == "#":
+		if cmd.params['channel'] == currentChannel:
+			print(f"Already in {currentChannel}.")
+			return
+		currentChannel = cmd.params['channel']
+		print(f"Joined {currentChannel} channel.")
+	else:
+		print("Invalid channel name.")
 
 def executeQuit(cmd: Command):
 	global finishSession
